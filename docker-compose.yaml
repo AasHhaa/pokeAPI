@@ -1,0 +1,34 @@
+version: '3.3'
+
+volumes:
+  db-data:
+    driver: local
+
+services:
+
+  django_pokemon_api:
+    container_name: django_pokemon_api
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    command: sh -c "
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - postgres_db_pokemon
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/work_dir
+
+  postgres_db_pokemon:
+    image: postgres
+    container_name: postgres_db_pokemon
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5437:5432"
